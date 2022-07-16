@@ -63,6 +63,17 @@ class BooksControllerTest extends TestCase
         });
     }
 
+    public function test_books_create_endpoint_bad_request()
+    {
+        $bookRequestData = [
+
+        ];
+        $response = $this->postJson(route('books.store'), $bookRequestData);
+        $books = Book::all();
+
+        $response->assertStatus(422);
+    }
+
     public function test_books_show_endpoint()
     {
         // create a book

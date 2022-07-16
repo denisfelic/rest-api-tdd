@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreBookRequest;
+use App\Http\Requests\UpdateBookRequest;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
 use Illuminate\Http\Request;
@@ -20,24 +22,27 @@ class BooksController extends Controller
         return response(new BookResource($book));
     }
 
-    public function store()
+    public function store(StoreBookRequest $bookRequest)
     {
-        try {
-
-            $bookData = request()->only('name', 'isbn');
-            $book = new Book();
-            $book->name = $bookData['name'];
-            $book->isbn = $bookData['isbn'];
-            $book->save();
-            return response(new BookResource($book), 201);
-        } catch (\Throwable $th) {
-            return response()->status(500);
-        }
+        $bookData = $bookRequest->validated();
+        $book = new Book();
+        $book->name = $bookData['name'];
+        $book->isbn = $bookData['isbn'];
+        $book->save();
+        return response(new BookResource($book), 201);
     }
 
-    public function update(Book $book)
+    public function update(Book $book, UpdateBookRequest $request)
     {
-        $book->name = request('name');
+        $requestData = $request->validated();
+
+        if ($requestData['name']){
+            $book->name = $requestData['name'];
+        }
+
+        if ($request['isbn']){
+            $book->isbn = $requestData['isbn'];
+        }
         $book->save();
 
         return response(
